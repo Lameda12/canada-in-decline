@@ -2,7 +2,7 @@
 
 **Live data visualization making a sourced case that Canada has declined as a destination for immigrants, expats, students, and workers.**
 
-→ [Open the dashboard](https://Lameda12.github.io/canada-in-decline) *(enable GitHub Pages on `main` → root)*
+→ **[Open the dashboard](https://file2-iota.vercel.app)**
 
 ---
 
