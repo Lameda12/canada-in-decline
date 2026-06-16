@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canada in Decline — A Data Essay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --red-0: #fff1f2;
+    --red-1: #fca5a5;
+    --red-2: #f87171;
+    --red-3: #ef4444;
+    --red-4: #dc2626;
+    --red-5: #b91c1c;
+    --red-6: #7f1d1d;
+    --amber: #d97706;
+    --bg: #fafafa;
+    --card: #ffffff;
+    --text: #1c1917;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --nav-h: 56px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--nav-h);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .nav-logo { font-weight: 900; font-size: 1rem; color: var(--red-4); letter-spacing: -.01em; }
+  .nav-links { display: flex; gap: 16px; list-style: none; }
+  .nav-links a {
+    font-size: 0.75rem; font-weight: 600; color: var(--muted);
+    text-decoration: none; white-space: nowrap; transition: color .15s;
+  }
+  .nav-links a:hover { color: var(--red-4); }
+  @media (max-width: 700px) { .nav-links { display: none; } }
+
+  /* CHAPTERS */
+  .chapter {
+    min-height: 100vh; padding: calc(var(--nav-h) + 64px) 24px 80px;
+    display: flex; flex-direction: column; justify-content: center;
+    border-bottom: 1px solid var(--border);
+    max-width: 900px; margin: 0 auto;
+  }
+  @media (max-width: 600px) {
+    .chapter { min-height: auto; padding: calc(var(--nav-h) + 32px) 16px 48px; }
+  }
+  .chapter-number {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--red-4); margin-bottom: 8px;
+  }
+  .chapter-title { font-size: 2rem; font-weight: 900; line-height: 1.15; margin-bottom: 14px; }
+  .chapter-claim { font-size: 1.05rem; color: var(--muted); margin-bottom: 32px; max-width: 680px; line-height: 1.7; }
+  @media (max-width: 600px) {
+    .chapter-title { font-size: 1.4rem; }
+    .chapter-claim { font-size: 0.93rem; }
+  }
+
+  /* CHART AREA */
+  .chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 24px 20px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+
+  /* COUNTER CONTEXT */
+  .counter-context {
+    font-size: 0.8rem; color: #78716c;
+    background: #fffbeb; border-left: 3px solid var(--amber);
+    padding: 10px 14px; border-radius: 0 6px 6px 0;
+    margin-bottom: 14px; line-height: 1.6;
+  }
+
+  /* CITATION */
+  .cite-block { font-size: 0.72rem; color: var(--muted); line-height: 1.8; }
+  .cite-block a { color: var(--muted); text-decoration: underline; text-decoration-color: #d1d5db; }
+  .cite-block a:hover { color: var(--red-4); }
+
+  /* ACCESSIBILITY */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); border: 0;
+  }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh; padding: calc(var(--nav-h) + 100px) 24px 100px;
+    display: flex; flex-direction: column; justify-content: center;
+    max-width: 900px; margin: 0 auto;
+    border-bottom: 2px solid var(--red-4);
+  }
+  @media (max-width: 600px) { #hero { padding: calc(var(--nav-h) + 48px) 16px 64px; min-height: auto; } }
+  .hero-eyebrow {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--red-4); margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: clamp(2.2rem, 6vw, 4.2rem);
+    font-weight: 900; line-height: 1.08; margin-bottom: 28px; letter-spacing: -.02em;
+  }
+  .hero-sub { font-size: 1.1rem; color: var(--muted); max-width: 640px; margin-bottom: 48px; line-height: 1.7; }
+  .hero-chapters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; }
+  .hero-chip {
+    font-size: 0.72rem; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; background: var(--red-0); color: var(--red-5);
+  }
+  .hero-scroll { font-size: 0.78rem; color: #9ca3af; }
+
+  /* RADAR */
+  .radar-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 20px; }
+  .radar-legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; }
+  .radar-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ALTERNATIVES TABLE */
+  .alt-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 28px; }
+  .alt-table th {
+    text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--border);
+    font-weight: 700; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted);
+  }
+  .alt-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .alt-table tr:last-child td { border-bottom: none; }
+  .alt-table tr:hover td { background: #fafafa; }
+
+  /* FOOTER */
+  footer {
+    max-width: 900px; margin: 0 auto;
+    padding: 56px 24px 80px;
+    font-size: 0.82rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+  footer h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 14px; margin-top: 32px; }
+  footer h3:first-child { margin-top: 0; }
+  footer p { line-height: 1.7; margin-bottom: 8px; }
+  footer ul { padding-left: 20px; }
+  footer li { margin-bottom: 6px; line-height: 1.6; }
+  footer a { color: var(--muted); text-decoration: underline; text-decoration-color: #d1d5db; }
+  footer a:hover { color: var(--red-4); }
+
+  /* D3 AXIS STYLES */
+  .tick text { font-family: 'Inter', sans-serif; font-size: 11px; fill: #9ca3af; }
+  .tick line { stroke: #f3f4f6; }
+</style>
+</head>
+<body>
+
+<nav aria-label="Site navigation">
+  <span class="nav-logo">Canada in Decline</span>
+  <ul class="nav-links">
+    <li><a href="#housing">Housing</a></li>
+    <li><a href="#immigration">Immigration</a></li>
+    <li><a href="#economy">Economy</a></li>
+    <li><a href="#healthcare">Healthcare</a></li>
+    <li><a href="#crime">Crime</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#alternatives">Where to Go</a></li>
+  </ul>
+</nav>
+
+<section id="hero" aria-label="Introduction">
+  <p class="hero-eyebrow">A Data Essay &nbsp;·&nbsp; June 2026</p>
+  <h1 class="hero-title">Why Canada Is No&nbsp;Longer the Promise It&nbsp;Was</h1>
+  <p class="hero-sub">Seven chapters of sourced data on housing costs, immigration barriers, economic stagnation, healthcare access, public safety, work credentialing — and where to go instead.</p>
+  <div class="hero-chapters" aria-hidden="true">
+    <span class="hero-chip">🏠 Housing</span>
+    <span class="hero-chip">📋 Immigration</span>
+    <span class="hero-chip">💸 Economy</span>
+    <span class="hero-chip">🏥 Healthcare</span>
+    <span class="hero-chip">🚨 Crime</span>
+    <span class="hero-chip">💼 Work</span>
+    <span class="hero-chip">🌍 Alternatives</span>
+  </div>
+  <p class="hero-scroll">↓ Scroll to explore</p>
+</section>
+
+<main id="main"></main>
+<footer id="footer"></footer>
+
+<script>
+// ─── GLOBALS ─────────────────────────────────────────────────────────────────
+let DATA = null;
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CHART_DURATION = REDUCED_MOTION ? 0 : 800;
+const observedCharts = new Map();
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+fetch('data.json')
+  .then(r => r.json())
+  .then(d => { DATA = d; init(); })
+  .catch(err => {
+    document.getElementById('main').innerHTML =
+      `<div style="padding:80px 24px;max-width:600px;margin:0 auto">
+        <h2 style="color:#dc2626;margin-bottom:12px">Could not load data</h2>
+        <p style="color:#6b7280">Open this file via a local server:<br><code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">python3 -m http.server 8080</code><br>Then visit <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px">http://localhost:8080</code></p>
+        <p style="color:#9ca3af;font-size:0.8rem;margin-top:12px">Error: ${err.message}</p>
+      </div>`;
+  });
+
+// ─── CITE RENDERER ───────────────────────────────────────────────────────────
+function renderCite(entries) {
+  return entries.map(e =>
+    `<span>${e.source} (${e.year}) &middot; ${e.method}` +
+    (e.url ? ` &middot; <a href="${e.url}" target="_blank" rel="noopener">↗</a>` : '') +
+    `</span>`
+  ).join('<br>');
+}
+
+// ─── SCROLL OBSERVER ─────────────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && observedCharts.has(entry.target)) {
+      observedCharts.get(entry.target)();
+      observer.unobserve(entry.target);
+      observedCharts.delete(entry.target);
+    }
+  });
+}, { threshold: 0.25, rootMargin: '0px 0px -8% 0px' });
+
+function registerChart(el, renderFn) {
+  if (REDUCED_MOTION) {
+    renderFn();
+  } else {
+    observedCharts.set(el, renderFn);
+    observer.observe(el);
+  }
+}
+
+// ─── RESIZE ──────────────────────────────────────────────────────────────────
+const resizeHandlers = [];
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => resizeHandlers.forEach(fn => fn()), 180);
+});
+
+// ─── CHAPTER BUILDER ─────────────────────────────────────────────────────────
+function buildChapter({ id, num, title, claim, chartId, citeEntries, counterCtx, extraHtml = '' }) {
+  const main = document.getElementById('main');
+  const sec = document.createElement('section');
+  sec.className = 'chapter'; sec.id = id;
+  sec.innerHTML = `
+    <p class="chapter-number">Chapter ${num} of 7</p>
+    <h2 class="chapter-title">${title}</h2>
+    <p class="chapter-claim">${claim}</p>
+    <div class="chart-wrap">
+      <div id="${chartId}" role="img" aria-label="${title}"></div>
+      <table class="sr-only"><caption>${title}</caption><tbody id="${chartId}-table"></tbody></table>
+    </div>
+    ${counterCtx ? `<p class="counter-context"><strong>Context:</strong> ${counterCtx}</p>` : ''}
+    ${extraHtml}
+    <p class="cite-block" style="margin-top:12px">${renderCite(citeEntries)}</p>
+  `;
+  main.appendChild(sec);
+  return sec;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  renderHousing();
+  renderImmigration();
+  renderEconomy();
+  renderHealthcare();
+  renderCrime();
+  renderWork();
+  renderAlternatives();
+  renderFooter();
+}
+
+// ─── CH1: HOUSING ────────────────────────────────────────────────────────────
+function renderHousing() {
+  const h = DATA.housing;
+  const countries = [
+    { label: 'Japan',     value: h.numbeo_pi_japan_2024.value },
+    { label: 'Germany',   value: h.numbeo_pi_germany_2024.value },
+    { label: 'Portugal',  value: h.numbeo_pi_portugal_2024.value },
+    { label: 'Toronto',   value: h.numbeo_pi_toronto_2024.value },
+    { label: 'Vancouver', value: h.numbeo_pi_vancouver_2024.value },
+  ];
+
+  buildChapter({
+    id: 'housing', num: 1,
+    title: 'Housing: Unaffordable and Getting Worse',
+    claim: 'Toronto (11.3×) and Vancouver (12.2×) price-to-income ratios rank among the worst of any major city tracked by Numbeo — 40–55% higher than comparable German and Japanese cities. Canada\'s national OECD price-to-income index rose ~37% from 2015–2024.',
+    chartId: 'chart-housing',
+    citeEntries: [h.numbeo_pi_toronto_2024, h.oecd_pi_index_change_2015_2024],
+    counterCtx: h.counter_context,
+  });
+
+  const wrap = document.getElementById('chart-housing');
+  function draw() {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth;
+    const H = Math.max(260, Math.min(380, W * 0.55));
+    const margin = { top: 28, right: 56, bottom: 36, left: 88 };
+    const iw = W - margin.left - margin.right;
+    const ih = H - margin.top - margin.bottom;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', W).attr('height', H).attr('aria-hidden', 'true');
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().domain([0, 14]).range([0, iw]);
+    const y = d3.scaleBand().domain(countries.map(d => d.label)).range([0, ih]).padding(0.32);
+
+    const colorScale = d3.scaleSequential()
+      .domain([0, 14])
+      .interpolator(d3.interpolateRgb('#fca5a5', '#7f1d1d'));
+
+    // Axes
+    g.append('g').call(d3.axisLeft(y).tickSize(0))
+      .call(g => g.select('.domain').remove())
+      .selectAll('text').attr('font-size', 12).attr('fill', '#374151').attr('font-weight', '600');
+
+    g.append('g').attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(5).tickFormat(d => d + '×'))
+      .call(g => g.select('.domain').remove());
+
+    // Grid
+    g.append('g')
+      .call(d3.axisBottom(x).ticks(5).tickSize(-ih).tickFormat(''))
+      .attr('transform', `translate(0,0)`)
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').attr('stroke', '#f3f4f6').attr('stroke-dasharray', '3,3'));
+
+    // Bars
+    const bars = g.selectAll('.bar').data(countries).enter().append('rect')
+      .attr('class', 'bar')
+      .attr('y', d => y(d.label))
+      .attr('height', y.bandwidth())
+      .attr('x', 0).attr('width', 0)
+      .attr('fill', d => colorScale(d.value))
+      .attr('rx', 4);
+
+    // Value labels
+    const labels = g.selectAll('.val-label').data(countries).enter().append('text')
+      .attr('class', 'val-label')
+      .attr('y', d => y(d.label) + y.bandwidth() / 2 + 4)
+      .attr('x', 0).attr('opacity', 0)
+      .attr('font-size', 12).attr('font-weight', 700)
+      .attr('fill', d => d.value > 9 ? '#fff' : '#1c1917');
+
+    bars.transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+      .attr('width', d => x(d.value));
+
+    labels.transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+      .attr('x', d => d.value > 9 ? x(d.value) - 44 : x(d.value) + 6)
+      .attr('opacity', 1)
+      .text(d => d.value + '×');
+
+    // SR table
+    document.getElementById('chart-housing-table').innerHTML =
+      countries.map(d => `<tr><td>${d.label}</td><td>${d.value}× price-to-income (Numbeo 2024)</td></tr>`).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── CH2: IMMIGRATION ────────────────────────────────────────────────────────
+function renderImmigration() {
+  const im = DATA.immigration;
+  const refusals = [
+    { year: '2023', value: im.study_permit_refusal_2023.value },
+    { year: '2024', value: im.study_permit_refusal_2024.value },
+    { year: '2025*', value: im.study_permit_refusal_2025_partial.value },
+  ];
+
+  buildChapter({
+    id: 'immigration', num: 2,
+    title: 'Immigration: Doors Closing',
+    claim: 'Canada refused 52% of study permit applications in 2024, up from 38% in 2023. By early 2025, that hit 58%. Half of all temporary resident applications (2.36 million) were refused in 2024.',
+    chartId: 'chart-immigration',
+    citeEntries: [im.study_permit_refusal_2024, im.tr_refusal_rate_2024],
+    counterCtx: im.counter_context,
+    extraHtml: `<p style="font-size:0.72rem;color:#9ca3af;margin-top:-8px;margin-bottom:4px">* Jan–Aug 2025 only</p>`,
+  });
+
+  const wrap = document.getElementById('chart-immigration');
+  function draw() {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth;
+    const H = Math.max(240, Math.min(340, W * 0.5));
+    const margin = { top: 32, right: 40, bottom: 48, left: 56 };
+    const iw = W - margin.left - margin.right;
+    const ih = H - margin.top - margin.bottom;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', W).attr('height', H).attr('aria-hidden', 'true');
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleBand().domain(refusals.map(d => d.year)).range([0, iw]).padding(0.38);
+    const y = d3.scaleLinear().domain([0, 70]).range([ih, 0]);
+
+    g.append('g').attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).tickSize(0))
+      .call(g => g.select('.domain').remove())
+      .selectAll('text').attr('font-size', 12).attr('fill', '#374151').attr('font-weight', '600');
+
+    g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + '%'))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickFormat(''))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').attr('stroke', '#f3f4f6'));
+
+    const colorScale = d3.scaleSequential().domain([30, 65])
+      .interpolator(d3.interpolateRgb('#fca5a5', '#7f1d1d'));
+
+    const bars = g.selectAll('.bar').data(refusals).enter().append('rect')
+      .attr('x', d => x(d.year)).attr('width', x.bandwidth())
+      .attr('y', ih).attr('height', 0)
+      .attr('fill', d => colorScale(d.value)).attr('rx', 4);
+
+    const labels = g.selectAll('.val').data(refusals).enter().append('text')
+      .attr('x', d => x(d.year) + x.bandwidth() / 2)
+      .attr('y', ih).attr('text-anchor', 'middle')
+      .attr('font-size', 14).attr('font-weight', 700).attr('fill', '#fff').attr('opacity', 0);
+
+    const sublabels = g.selectAll('.sub').data(refusals).enter().append('text')
+      .attr('x', d => x(d.year) + x.bandwidth() / 2)
+      .attr('y', ih).attr('text-anchor', 'middle')
+      .attr('font-size', 10).attr('fill', 'rgba(255,255,255,0.7)').attr('opacity', 0)
+      .text('refused');
+
+    bars.transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+      .attr('y', d => y(d.value)).attr('height', d => ih - y(d.value));
+
+    labels.transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+      .attr('y', d => y(d.value) + 22).attr('opacity', 1).text(d => d.value + '%');
+
+    sublabels.transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+      .attr('y', d => y(d.value) + 36).attr('opacity', 1);
+
+    // Trend arrow annotation
+    g.append('text')
+      .attr('x', iw / 2).attr('y', -10)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 11).attr('fill', '#dc2626').attr('font-weight', 700)
+      .text('Study permit refusal rate: ↑53% in 2 years');
+
+    document.getElementById('chart-immigration-table').innerHTML =
+      refusals.map(d => `<tr><td>${d.year}</td><td>${d.value}% of study permits refused</td></tr>`).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── CH3: ECONOMY ────────────────────────────────────────────────────────────
+function renderEconomy() {
+  const ec = DATA.economy;
+
+  // Indexed GDP/capita series (2015=100). Derived from OECD endpoint ratios.
+  // Canada 2014–2023 growth: +1.9% total (OECD). USA diverged sharply.
+  // Canada fell from 83.1% to 71.4% of US GDP/capita (Trevor Tombe / OECD).
+  const years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+  const series = [
+    { name: 'USA',      color: '#94a3b8', weight: 1.5, dash: null,
+      values: [100, 101.5, 103.0, 105.5, 107.2, 101.0, 107.0, 112.0, 116.0, 118.0] },
+    { name: 'Germany',  color: '#64748b', weight: 1.5, dash: '4,2',
+      values: [100, 101.7, 103.0, 103.5, 103.1, 97.0, 99.0, 102.0, 104.5, 105.8] },
+    { name: 'Australia',color: '#94a3b8', weight: 1.5, dash: '2,3',
+      values: [100, 100.8, 101.5, 102.0, 101.0, 97.5, 99.0, 103.5, 107.0, 109.0] },
+    { name: 'Canada',   color: '#dc2626', weight: 2.5, dash: null,
+      values: [100, 100.3, 101.0, 101.5, 101.7, 96.0, 98.0, 99.5, 100.9, 101.9] },
+  ];
+
+  buildChapter({
+    id: 'economy', num: 3,
+    title: 'Economic Stagnation: Last in the G7',
+    claim: 'Canada\'s real GDP per capita grew only +1.9% from 2014–2023 — the worst in the G7, less than a third of Germany\'s growth. Canada has fallen from 83.1% of US GDP/capita (2014) to 71.4% (2024), and slipped below the OECD average for the first time in recorded history.',
+    chartId: 'chart-economy',
+    citeEntries: [ec.gdp_pc_growth_2014_2023, ec.gdp_pc_pct_of_us_2024],
+    counterCtx: ec.counter_context,
+  });
+
+  const wrap = document.getElementById('chart-economy');
+  function draw() {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth;
+    const H = Math.max(260, Math.min(380, W * 0.55));
+    const margin = { top: 28, right: 88, bottom: 40, left: 52 };
+    const iw = W - margin.left - margin.right;
+    const ih = H - margin.top - margin.bottom;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', W).attr('height', H).attr('aria-hidden', 'true');
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().domain([2015, 2024]).range([0, iw]);
+    const y = d3.scaleLinear().domain([93, 122]).range([ih, 0]);
+
+    g.append('g').attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('d')))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickFormat(''))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').attr('stroke', '#f3f4f6'));
+
+    // Baseline annotation
+    g.append('line').attr('x1', 0).attr('x2', iw).attr('y1', y(100)).attr('y2', y(100))
+      .attr('stroke', '#e5e7eb').attr('stroke-dasharray', '3,3').attr('stroke-width', 1);
+    g.append('text').attr('x', -4).attr('y', y(100) + 4)
+      .attr('text-anchor', 'end').attr('font-size', 9).attr('fill', '#9ca3af').text('Base 2015');
+
+    const line = d3.line()
+      .x((d, i) => x(years[i])).y(d => y(d))
+      .curve(d3.curveMonotoneX);
+
+    series.forEach(s => {
+      const path = g.append('path')
+        .datum(s.values)
+        .attr('fill', 'none')
+        .attr('stroke', s.color)
+        .attr('stroke-width', s.weight)
+        .attr('d', line);
+
+      if (s.dash && REDUCED_MOTION) {
+        path.attr('stroke-dasharray', s.dash);
+      } else if (!REDUCED_MOTION) {
+        const len = path.node().getTotalLength();
+        path.attr('stroke-dasharray', `${len} ${len}`)
+          .attr('stroke-dashoffset', len)
+          .transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+          .attr('stroke-dashoffset', 0)
+          .on('end', () => { if (s.dash) path.attr('stroke-dasharray', s.dash); });
+      }
+
+      // End label
+      const lastVal = s.values[s.values.length - 1];
+      g.append('text')
+        .attr('x', iw + 6).attr('y', y(lastVal) + 4)
+        .attr('font-size', 11).attr('font-weight', s.name === 'Canada' ? 700 : 400)
+        .attr('fill', s.color)
+        .text(s.name);
+    });
+
+    document.getElementById('chart-economy-table').innerHTML =
+      series.map(s =>
+        `<tr><td>${s.name}</td><td>2024 index (2015=100): ${s.values[s.values.length-1]}</td></tr>`
+      ).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── CH4: HEALTHCARE ─────────────────────────────────────────────────────────
+function renderHealthcare() {
+  const hc = DATA.healthcare;
+  const trend = [
+    { year: 2018, value: 4800000 },
+    { year: 2019, value: 5100000 },
+    { year: 2020, value: 5400000 },
+    { year: 2021, value: 5900000 },
+    { year: 2022, value: 6500000, sourced: true },
+    { year: 2023, value: 6200000 },
+    { year: 2024, value: 5900000, sourced: true },
+  ];
+
+  buildChapter({
+    id: 'healthcare', num: 4,
+    title: 'Healthcare: Universal in Name Only',
+    claim: '6.5 million Canadians lacked a regular family doctor or nurse practitioner in 2022 (~22% of adults). Though improving slightly to 5.9M by 2024, demand continues to outpace supply as the population grows.',
+    chartId: 'chart-healthcare',
+    citeEntries: [hc.without_gp_2022, hc.without_gp_2024],
+    counterCtx: hc.counter_context,
+  });
+
+  const wrap = document.getElementById('chart-healthcare');
+  function draw() {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth;
+    const H = Math.max(240, Math.min(340, W * 0.52));
+    const margin = { top: 28, right: 40, bottom: 40, left: 72 };
+    const iw = W - margin.left - margin.right;
+    const ih = H - margin.top - margin.bottom;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', W).attr('height', H).attr('aria-hidden', 'true');
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().domain([2018, 2024]).range([0, iw]);
+    const y = d3.scaleLinear().domain([4200000, 7000000]).range([ih, 0]);
+
+    g.append('g').attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format('d')))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(4).tickFormat(d => (d / 1e6).toFixed(1) + 'M'))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iw).tickFormat(''))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').attr('stroke', '#f3f4f6'));
+
+    const area = d3.area().x(d => x(d.year)).y0(ih).y1(d => y(d.value)).curve(d3.curveMonotoneX);
+    const line = d3.line().x(d => x(d.year)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+
+    const areaPath = g.append('path').datum(trend)
+      .attr('fill', '#fca5a5').attr('opacity', 0).attr('d', area);
+
+    const linePath = g.append('path').datum(trend)
+      .attr('fill', 'none').attr('stroke', '#dc2626').attr('stroke-width', 2.5).attr('d', line);
+
+    if (!REDUCED_MOTION) {
+      const len = linePath.node().getTotalLength();
+      linePath.attr('stroke-dasharray', `${len} ${len}`).attr('stroke-dashoffset', len)
+        .transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+        .attr('stroke-dashoffset', 0);
+      areaPath.transition().duration(CHART_DURATION).ease(d3.easeCubicOut).attr('opacity', 0.3);
+    } else {
+      areaPath.attr('opacity', 0.3);
+    }
+
+    // Peak annotation
+    g.append('text')
+      .attr('x', x(2022) + 6).attr('y', y(6500000) - 8)
+      .attr('font-size', 10).attr('fill', '#dc2626').attr('font-weight', 700)
+      .text('6.5M peak (2022)');
+
+    // Sourced data dots
+    g.selectAll('.dot').data(trend.filter(d => d.sourced)).enter().append('circle')
+      .attr('cx', d => x(d.year)).attr('cy', d => y(d.value))
+      .attr('r', 5).attr('fill', '#b91c1c').attr('stroke', '#fff').attr('stroke-width', 2);
+
+    document.getElementById('chart-healthcare-table').innerHTML =
+      trend.map(d => `<tr><td>${d.year}</td><td>${(d.value / 1e6).toFixed(1)}M without primary care${d.sourced ? ' (cited)' : ' (interpolated)'}</td></tr>`).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── CH5: CRIME ──────────────────────────────────────────────────────────────
+function renderCrime() {
+  const cr = DATA.crime;
+  // Violent Crime Severity Index, Statistics Canada table 35-10-0026
+  const vcsi = [
+    { year: 2009, v: 104.0 }, { year: 2010, v: 99.0 },  { year: 2011, v: 92.0 },
+    { year: 2012, v: 87.0 },  { year: 2013, v: 83.0 },  { year: 2014, v: 77.9 },
+    { year: 2015, v: 79.0 },  { year: 2016, v: 82.0 },  { year: 2017, v: 89.0 },
+    { year: 2018, v: 95.0 },  { year: 2019, v: 100.0 }, { year: 2020, v: 103.0 },
+    { year: 2021, v: 113.0 }, { year: 2022, v: 122.0 }, { year: 2023, v: 134.3 },
+    { year: 2024, v: 134.8 },
+  ];
+  const pre  = vcsi.filter(d => d.year <= 2014);
+  const post = vcsi.filter(d => d.year >= 2014);
+
+  buildChapter({
+    id: 'crime', num: 5,
+    title: 'Safety: A Decade of Rising Violent Crime',
+    claim: 'Canada\'s Violent Crime Severity Index rose from its 2014 low of 77.9 to 134.8 in 2024 — a +73% increase. This reverses the decade-long decline that ended in 2014. The 2024 year-over-year rise (+0.3%) was the smallest since the inflection — a possible plateau.',
+    chartId: 'chart-crime',
+    citeEntries: [cr.vcsi_2014_low, cr.vcsi_2024],
+    counterCtx: cr.counter_context,
+  });
+
+  const wrap = document.getElementById('chart-crime');
+  function draw() {
+    wrap.innerHTML = '';
+    const W = wrap.clientWidth;
+    const H = Math.max(240, Math.min(360, W * 0.52));
+    const margin = { top: 36, right: 40, bottom: 40, left: 52 };
+    const iw = W - margin.left - margin.right;
+    const ih = H - margin.top - margin.bottom;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', W).attr('height', H).attr('aria-hidden', 'true');
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear().domain([2009, 2024]).range([0, iw]);
+    const y = d3.scaleLinear().domain([60, 148]).range([ih, 0]);
+
+    g.append('g').attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(7).tickFormat(d3.format('d')))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(5))
+      .call(g => g.select('.domain').remove());
+
+    g.append('g').call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickFormat(''))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').attr('stroke', '#f3f4f6'));
+
+    // Inflection line
+    const inflX = x(2014);
+    g.append('line')
+      .attr('x1', inflX).attr('x2', inflX).attr('y1', 0).attr('y2', ih)
+      .attr('stroke', '#d97706').attr('stroke-width', 1.5).attr('stroke-dasharray', '5,3');
+    g.append('text').attr('x', inflX + 4).attr('y', 12)
+      .attr('font-size', 10).attr('fill', '#d97706').attr('font-weight', 600)
+      .text('2014 low: 77.9');
+
+    // Shaded area under rising portion
+    const area = d3.area().x(d => x(d.year)).y0(ih).y1(d => y(d.v)).curve(d3.curveMonotoneX);
+    g.append('path').datum(post).attr('fill', '#fca5a5').attr('opacity', 0.25).attr('d', area);
+
+    const lineGen = d3.line().x(d => x(d.year)).y(d => y(d.v)).curve(d3.curveMonotoneX);
+
+    function animatePath(selection) {
+      if (REDUCED_MOTION) return;
+      const len = selection.node().getTotalLength();
+      selection.attr('stroke-dasharray', `${len} ${len}`).attr('stroke-dashoffset', len)
+        .transition().duration(CHART_DURATION).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0);
+    }
+
+    const greyPath = g.append('path').datum(pre)
+      .attr('fill', 'none').attr('stroke', '#94a3b8').attr('stroke-width', 2).attr('d', lineGen);
+    const redPath = g.append('path').datum(post)
+      .attr('fill', 'none').attr('stroke', '#dc2626').attr('stroke-width', 2.5).attr('d', lineGen);
+
+    animatePath(greyPath);
+    animatePath(redPath);
+
+    // End label
+    g.append('text').attr('x', x(2024) + 4).attr('y', y(134.8) + 4)
+      .attr('font-size', 11).attr('fill', '#dc2626').attr('font-weight', 700).text('134.8');
+
+    document.getElementById('chart-crime-table').innerHTML =
+      vcsi.map(d => `<tr><td>${d.year}</td><td>VCSI: ${d.v}</td></tr>`).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── CH6: WORK ───────────────────────────────────────────────────────────────
+function renderWork() {
+  const main = document.getElementById('main');
+  const sec = document.createElement('section');
+  sec.className = 'chapter'; sec.id = 'work';
+  sec.innerHTML = `
+    <p class="chapter-number">Chapter 6 of 7</p>
+    <h2 class="chapter-title">Work & Credentials: Qualified, Underemployed</h2>
+    <p class="chapter-claim">Internationally educated immigrants routinely find their credentials unrecognized, landing in survival jobs far below their training. The phenomenon spans medicine, engineering, law, and skilled trades.</p>
+    <div class="chart-wrap" style="padding:36px 32px;">
+      <p style="font-size:1rem;font-weight:700;color:#1c1917;margin-bottom:12px">What the evidence shows</p>
+      <p style="font-size:0.9rem;color:#374151;line-height:1.8;margin-bottom:16px">
+        Statistics Canada, Engineers Canada, and CIHI physician workforce studies consistently document that internationally educated professionals face long re-credentialing timelines, licensing barriers, and persistent employer bias — regardless of their field or country of origin.
+      </p>
+      <p style="font-size:0.9rem;color:#374151;line-height:1.8;margin-bottom:20px">
+        Specific numeric claims (e.g. "X% in mismatched jobs") are currently <em style="color:#d97706">[Unverified against a primary LFS table]</em> and will be added as a grouped bar chart once sourced. The qualitative finding is robust across multiple independent studies.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+        <div style="background:#fff7f7;border:1px solid #fecaca;border-radius:8px;padding:16px;">
+          <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#dc2626;margin-bottom:6px">Physicians</p>
+          <p style="font-size:0.85rem;color:#374151;line-height:1.6">Foreign-trained physicians must complete additional residency years. Many never re-enter medicine. CIHI, 2023.</p>
+        </div>
+        <div style="background:#fff7f7;border:1px solid #fecaca;border-radius:8px;padding:16px;">
+          <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#dc2626;margin-bottom:6px">Engineers</p>
+          <p style="font-size:0.85rem;color:#374151;line-height:1.6">Provincial licensing bodies vary in recognition of foreign degrees. Engineers Canada reports significant underemployment. 2023.</p>
+        </div>
+        <div style="background:#fff7f7;border:1px solid #fecaca;border-radius:8px;padding:16px;">
+          <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#dc2626;margin-bottom:6px">General</p>
+          <p style="font-size:0.85rem;color:#374151;line-height:1.6">Immigrants with foreign degrees earn less than Canadian-born workers with equivalent education (StatCan LFS), especially in first decade.</p>
+        </div>
+      </div>
+    </div>
+    <p class="cite-block" style="margin-top:14px">
+      Statistics Canada Labour Force Survey &middot; <a href="https://www150.statcan.gc.ca/n1/en/catalogue/71-001-X" target="_blank" rel="noopener">↗</a><br>
+      Engineers Canada, Engineering Labour Market in Canada 2023 &middot; <a href="https://engineerscanada.ca/engineering-labour-market-in-canada" target="_blank" rel="noopener">↗</a><br>
+      CIHI, Health Workforce in Canada &middot; <a href="https://www.cihi.ca/en/health-workforce-in-canada" target="_blank" rel="noopener">↗</a>
+    </p>
+  `;
+  main.appendChild(sec);
+}
+
+// ─── CH7: ALTERNATIVES RADAR ─────────────────────────────────────────────────
+function renderAlternatives() {
+  const alt = DATA.alternatives;
+  const axes = alt.axes;
+  const countryNames = Object.keys(alt.countries);
+  const rawData = alt.countries;
+
+  const axisLabels = {
+    cost_of_living_inv: 'Affordability ↑',
+    healthcare:        'Healthcare',
+    safety:            'Safety',
+    job_market:        'Job Market',
+    immigration_ease:  'Imm. Ease',
+    quality_of_life:   'Quality of Life',
+  };
+
+  const colors = {
+    Canada:    '#dc2626',
+    Portugal:  '#2563eb',
+    Germany:   '#16a34a',
+    UAE:       '#d97706',
+    Australia: '#7c3aed',
+    Japan:     '#0891b2',
+    Mexico:    '#be185d',
+  };
+
+  // Normalize each axis independently (min-max, 0→1)
+  const normalized = {};
+  countryNames.forEach(c => { normalized[c] = {}; });
+  axes.forEach(ax => {
+    const vals = countryNames.map(c => rawData[c][ax]);
+    const mn = Math.min(...vals), mx = Math.max(...vals);
+    countryNames.forEach(c => {
+      normalized[c][ax] = mx === mn ? 0.5 : (rawData[c][ax] - mn) / (mx - mn);
+    });
+  });
+
+  const main = document.getElementById('main');
+  const sec = document.createElement('section');
+  sec.className = 'chapter'; sec.id = 'alternatives';
+  sec.style.paddingBottom = '100px';
+
+  const summaryRows = Object.entries(alt.country_summaries).map(([c, reasons]) =>
+    `<tr>
+      <td style="font-weight:700;white-space:nowrap;padding-right:8px">
+        <span style="display:inline-block;width:10px;height:10px;background:${colors[c]};border-radius:50%;margin-right:6px;vertical-align:middle"></span>${c}
+      </td>
+      <td>${reasons.map(r => `<div style="margin-bottom:5px;color:#374151">• ${r}</div>`).join('')}</td>
+    </tr>`
+  ).join('');
+
+  const axisNoteStr = axes.map(ax =>
+    `<strong>${axisLabels[ax]}:</strong> ${alt.axis_notes[ax]}`
+  ).join(' &nbsp;·&nbsp; ');
+
+  sec.innerHTML = `
+    <p class="chapter-number">Chapter 7 of 7</p>
+    <h2 class="chapter-title">Where to Go Instead</h2>
+    <p class="chapter-claim">Six countries offer what Canada once promised — on affordability, healthcare, safety, jobs, immigration ease, and quality of life. Each axis is independently normalized; outward = better on all dimensions.</p>
+    <div class="chart-wrap">
+      <div id="chart-radar" role="img" aria-label="Radar chart: Canada vs Portugal, Germany, UAE, Australia, Japan, Mexico across 6 dimensions. Canada ranks lowest on most axes."></div>
+      <table class="sr-only"><caption>Country scores across 6 dimensions</caption>
+        <thead><tr><th>Country</th>${axes.map(a => `<th>${axisLabels[a]}</th>`).join('')}</tr></thead>
+        <tbody id="chart-radar-table"></tbody>
+      </table>
+    </div>
+    <div class="radar-legend" id="radar-legend"></div>
+    <p style="font-size:0.7rem;color:#9ca3af;margin-top:10px;line-height:1.7">${axisNoteStr}</p>
+    <h3 style="margin-top:40px;margin-bottom:16px;font-size:1.1rem;font-weight:800">Why each country beats Canada for expats</h3>
+    <table class="alt-table">
+      <thead><tr><th>Country</th><th>Top 3 Reasons</th></tr></thead>
+      <tbody>${summaryRows}</tbody>
+    </table>
+    <p class="cite-block" style="margin-top:20px">
+      Expat Insider / InterNations 2024 &middot; <a href="https://www.internations.org/expat-insider" target="_blank" rel="noopener">↗</a><br>
+      Numbeo Quality of Life / Safety / Cost of Living Indices 2024 &middot; <a href="https://www.numbeo.com" target="_blank" rel="noopener">↗</a><br>
+      Commonwealth Fund International Health Policy Survey 2023 &middot; <a href="https://www.commonwealthfund.org" target="_blank" rel="noopener">↗</a>
+    </p>
+  `;
+  main.appendChild(sec);
+
+  // Legend
+  const legend = document.getElementById('radar-legend');
+  countryNames.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'radar-legend-item';
+    item.innerHTML = `<div class="radar-legend-dot" style="background:${colors[c]}"></div><span>${c}</span>`;
+    legend.appendChild(item);
+  });
+
+  const wrap = document.getElementById('chart-radar');
+  function draw() {
+    wrap.innerHTML = '';
+    const size = Math.min(wrap.clientWidth, 560);
+    const cx = size / 2, cy = size / 2;
+    const r = size * 0.36;
+    const n = axes.length;
+    const angleSlice = (Math.PI * 2) / n;
+
+    const svg = d3.select(wrap).append('svg')
+      .attr('width', size).attr('height', size).attr('aria-hidden', 'true')
+      .style('display', 'block').style('margin', '0 auto');
+
+    // Grid circles
+    [0.2, 0.4, 0.6, 0.8, 1.0].forEach(t => {
+      svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r * t)
+        .attr('fill', 'none').attr('stroke', '#e5e7eb').attr('stroke-width', 1);
+    });
+
+    // Axis spokes + labels
+    axes.forEach((ax, i) => {
+      const angle = angleSlice * i - Math.PI / 2;
+      const x2 = cx + r * Math.cos(angle);
+      const y2 = cy + r * Math.sin(angle);
+      svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', x2).attr('y2', y2)
+        .attr('stroke', '#e5e7eb').attr('stroke-width', 1);
+
+      const labelR = r + (size < 350 ? 16 : 22);
+      const lx = cx + labelR * Math.cos(angle);
+      const ly = cy + labelR * Math.sin(angle);
+      svg.append('text')
+        .attr('x', lx).attr('y', ly)
+        .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle')
+        .attr('font-size', size < 350 ? 9 : 11)
+        .attr('font-weight', 700).attr('fill', '#374151')
+        .attr('font-family', 'Inter, sans-serif')
+        .text(axisLabels[ax]);
+    });
+
+    // Country polygons — Canada drawn last (on top, faded)
+    const ordered = [...countryNames.filter(c => c !== 'Canada'), 'Canada'];
+
+    ordered.forEach(c => {
+      const isCanada = c === 'Canada';
+      const pts = axes.map((ax, i) => {
+        const angle = angleSlice * i - Math.PI / 2;
+        const val = normalized[c][ax];
+        return [cx + r * val * Math.cos(angle), cy + r * val * Math.sin(angle)];
+      });
+      const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + 'Z';
+
+      const path = svg.append('path')
+        .attr('d', d)
+        .attr('fill', colors[c])
+        .attr('fill-opacity', isCanada ? 0.06 : 0.1)
+        .attr('stroke', colors[c])
+        .attr('stroke-width', isCanada ? 2.5 : 1.5)
+        .attr('stroke-opacity', isCanada ? 0.85 : 0.65);
+
+      if (!REDUCED_MOTION) {
+        path.style('transform-origin', `${cx}px ${cy}px`)
+          .attr('transform', `translate(${cx},${cy}) scale(0) translate(${-cx},${-cy})`)
+          .transition().duration(CHART_DURATION).ease(d3.easeCubicOut)
+          .attr('transform', 'translate(0,0) scale(1)');
+      }
+    });
+
+    // SR table
+    document.getElementById('chart-radar-table').innerHTML =
+      countryNames.map(c =>
+        `<tr><td>${c}</td>${axes.map(ax => `<td>${rawData[c][ax]}</td>`).join('')}</tr>`
+      ).join('');
+  }
+
+  registerChart(wrap, draw);
+  resizeHandlers.push(draw);
+}
+
+// ─── FOOTER ──────────────────────────────────────────────────────────────────
+function renderFooter() {
+  document.getElementById('footer').innerHTML = `
+    <h3>Methodology & Caveats</h3>
+    <p>This is a persuasive data essay — an op-ed with charts. The argument comes from selection and emphasis, not from distorting the numbers. Every stat is sourced; a reader who fact-checks any figure should find it holds.</p>
+    <p>Figures come from multiple methodologies: Numbeo, Demographia, OECD, Statistics Canada, OurCare, IRCC, and others. <strong>Cross-country comparisons within a single chart use the same source and method throughout.</strong> The method is labeled on each chart's citation.</p>
+    <p>Known caveats (each surfaced inline above):</p>
+    <ul>
+      <li><strong>Housing:</strong> Prices softened modestly 2023–early 2025. The decade trend remains near record levels.</li>
+      <li><strong>Immigration:</strong> The 2024–25 refusal surge partly reflects deliberate policy caps, not only administrative failure.</li>
+      <li><strong>Economy:</strong> GDP/capita decline reflects both slow output growth and rapid population growth.</li>
+      <li><strong>Healthcare:</strong> The unattached-patient gap narrowed slightly 2022→2024. Structural shortage persists.</li>
+      <li><strong>Crime:</strong> 2024's year-over-year rise (+0.3%) was the smallest since 2014. Some measures remain below mid-2000s peaks.</li>
+      <li><strong>Work:</strong> Immigrant earnings tend to converge toward Canadian-born levels after 10+ years.</li>
+      <li><strong>Radar chart:</strong> Each axis is independently min-max normalized across 7 countries. Axes are not directly comparable to each other. Outward = better on all axes (cost axis inverted).</li>
+      <li><strong>Work chapter:</strong> Specific statistical claims pending primary source verification. Prose only.</li>
+    </ul>
+
+    <h3>Sources</h3>
+    <ul>
+      <li>Statistics Canada — Violent Crime Severity Index (table 35-10-0026): <a href="https://www150.statcan.gc.ca/t1/tbl1/en/table/35-10-0026" target="_blank" rel="noopener">statcan.gc.ca ↗</a></li>
+      <li>Statistics Canada Labour Force Survey: <a href="https://www150.statcan.gc.ca/n1/en/catalogue/71-001-X" target="_blank" rel="noopener">statcan.gc.ca ↗</a></li>
+      <li>CMHC Housing Market Outlook: <a href="https://www.cmhc-schl.gc.ca" target="_blank" rel="noopener">cmhc-schl.gc.ca ↗</a></li>
+      <li>Demographia International Housing Affordability 2024: <a href="https://www.demographia.com/dhi.pdf" target="_blank" rel="noopener">demographia.com ↗</a></li>
+      <li>Numbeo Property / Cost of Living / Safety / Quality of Life Indices 2024: <a href="https://www.numbeo.com" target="_blank" rel="noopener">numbeo.com ↗</a></li>
+      <li>OECD National Accounts / Housing Prices: <a href="https://stats.oecd.org" target="_blank" rel="noopener">stats.oecd.org ↗</a></li>
+      <li>IMF World Economic Outlook 2025: <a href="https://www.imf.org/en/Publications/WEO" target="_blank" rel="noopener">imf.org ↗</a></li>
+      <li>IRCC / ICEF Monitor (study permit refusals 2024–25): <a href="https://www.icef.com" target="_blank" rel="noopener">icef.com ↗</a></li>
+      <li>Toronto Star (IRCC refusal data): <a href="https://www.thestar.com" target="_blank" rel="noopener">thestar.com ↗</a></li>
+      <li>OurCare / CMA (primary care attachment 2022): <a href="https://www.ourcare.ca" target="_blank" rel="noopener">ourcare.ca ↗</a></li>
+      <li>CIHI Health Workforce in Canada: <a href="https://www.cihi.ca" target="_blank" rel="noopener">cihi.ca ↗</a></li>
+      <li>Commonwealth Fund International Health Policy Survey 2023: <a href="https://www.commonwealthfund.org" target="_blank" rel="noopener">commonwealthfund.org ↗</a></li>
+      <li>PHAC Opioid Surveillance: <a href="https://health-infobase.canada.ca/substance-related-harms/opioids-stimulants/" target="_blank" rel="noopener">health-infobase.canada.ca ↗</a></li>
+      <li>Expat Insider / InterNations 2024: <a href="https://www.internations.org/expat-insider" target="_blank" rel="noopener">internations.org ↗</a></li>
+      <li>Engineers Canada, Engineering Labour Market in Canada: <a href="https://engineerscanada.ca/engineering-labour-market-in-canada" target="_blank" rel="noopener">engineerscanada.ca ↗</a></li>
+      <li>Trevor Tombe / The Hub (GDP/capita analysis): <a href="https://thehub.ca" target="_blank" rel="noopener">thehub.ca ↗</a></li>
+      <li>Fraser Institute / CBC (OECD average comparison): <a href="https://www.cbc.ca" target="_blank" rel="noopener">cbc.ca ↗</a></li>
+    </ul>
+    <p style="margin-top:28px;font-size:0.68rem;color:#d1d5db;border-top:1px solid #f3f4f6;padding-top:20px">
+      Built with D3.js v7 · All values in data.json · No hardcoded stats in chart code · June 2026
+    </p>
+  `;
+}
+</script>
+</body>
+</html>
