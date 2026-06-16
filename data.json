@@ -1,0 +1,188 @@
+{
+  "housing": {
+    "numbeo_pi_toronto_2024": {
+      "value": 11.3, "year": 2024,
+      "source": "Numbeo Property Index",
+      "method": "price-to-income ratio (Numbeo)",
+      "url": "https://www.numbeo.com/property-investment/"
+    },
+    "numbeo_pi_vancouver_2024": {
+      "value": 12.2, "year": 2024,
+      "source": "Numbeo Property Index",
+      "method": "price-to-income ratio (Numbeo)",
+      "url": "https://www.numbeo.com/property-investment/"
+    },
+    "numbeo_pi_germany_2024": {
+      "value": 7.8, "year": 2024,
+      "source": "Numbeo Property Index",
+      "method": "price-to-income ratio (Numbeo)",
+      "url": "https://www.numbeo.com/property-investment/"
+    },
+    "numbeo_pi_portugal_2024": {
+      "value": 9.2, "year": 2024,
+      "source": "Numbeo Property Index",
+      "method": "price-to-income ratio (Numbeo)",
+      "url": "https://www.numbeo.com/property-investment/"
+    },
+    "numbeo_pi_japan_2024": {
+      "value": 8.1, "year": 2024,
+      "source": "Numbeo Property Index",
+      "method": "price-to-income ratio (Numbeo)",
+      "url": "https://www.numbeo.com/property-investment/"
+    },
+    "oecd_pi_index_change_2015_2024": {
+      "value": 37, "year": 2024,
+      "source": "OECD via Statista",
+      "method": "OECD price-to-income index, % change from 2015 base",
+      "url": "https://stats.oecd.org/Index.aspx?DataSetCode=HOUSE_PRICES"
+    },
+    "demographia_national_multiple_2024": {
+      "value": 5.6, "year": 2024,
+      "source": "Demographia International Housing Affordability 2024",
+      "method": "median multiple (median house price / median household income)",
+      "url": "https://www.demographia.com/dhi.pdf"
+    },
+    "demographia_national_multiple_2019": {
+      "value": 4.4, "year": 2019,
+      "source": "Demographia International Housing Affordability 2019",
+      "method": "median multiple (median house price / median household income)",
+      "url": "https://www.demographia.com/dhi.pdf"
+    },
+    "counter_context": "Prices softened modestly 2023–early 2025 as rates rose. Affordability remains near record levels; the dip does not reverse the decade trend."
+  },
+  "immigration": {
+    "study_permit_refusal_2023": {
+      "value": 38, "year": 2023,
+      "source": "IRCC / ICEF Monitor",
+      "method": "study permit refusal rate (%)",
+      "url": "https://www.icef.com/2025/02/canada-rejected-52-of-all-study-permit-applications-in-2024/"
+    },
+    "study_permit_refusal_2024": {
+      "value": 52, "year": 2024,
+      "source": "IRCC / ICEF Monitor",
+      "method": "study permit refusal rate (%)",
+      "url": "https://www.icef.com/2025/02/canada-rejected-52-of-all-study-permit-applications-in-2024/"
+    },
+    "study_permit_refusal_2025_partial": {
+      "value": 58, "year": 2025,
+      "source": "IRCC / Toronto Star",
+      "method": "study permit refusal rate (%), Jan–Aug 2025",
+      "url": "https://www.thestar.com/news/canada/2025/09/15/canada-study-permit-refusals.html"
+    },
+    "tr_refusals_total_2024": {
+      "value": 2360000, "year": 2024,
+      "source": "IRCC data via Toronto Star",
+      "method": "total temporary resident applications refused",
+      "url": "https://www.thestar.com/news/canada/2024/ircc-refusals.html"
+    },
+    "tr_refusal_rate_2024": {
+      "value": 50, "year": 2024,
+      "source": "IRCC data via Toronto Star",
+      "method": "% of all temporary resident applications refused",
+      "url": "https://www.thestar.com/news/canada/2024/ircc-refusals.html"
+    },
+    "counter_context": "The 2024–25 refusal surge is partly deliberate policy (study-permit caps, PAL/TAL system), not pure dysfunction. This is itself a \"doors closing\" story — a policy reversal from the immigration-growth era."
+  },
+  "economy": {
+    "gdp_pc_growth_2014_2023": {
+      "value": 1.9, "year": 2023,
+      "source": "OECD National Accounts / IMF WEO 2025",
+      "method": "real GDP per capita % growth, 2014–2023 (PPP, constant USD)",
+      "url": "https://stats.oecd.org/Index.aspx?DataSetCode=SNA_TABLE1"
+    },
+    "gdp_pc_pct_of_us_2014": {
+      "value": 83.1, "year": 2014,
+      "source": "Trevor Tombe / The Hub, OECD data",
+      "method": "Canada GDP/capita as % of US GDP/capita (PPP)",
+      "url": "https://thehub.ca/2026/canada-gdp-decline"
+    },
+    "gdp_pc_pct_of_us_2024": {
+      "value": 71.4, "year": 2024,
+      "source": "Trevor Tombe / The Hub, OECD data",
+      "method": "Canada GDP/capita as % of US GDP/capita (PPP)",
+      "url": "https://thehub.ca/2026/canada-gdp-decline"
+    },
+    "oecd_avg_crossed_year": {
+      "value": 2022, "year": 2022,
+      "source": "Fraser Institute / OECD / CBC",
+      "method": "year Canada GDP/capita fell below OECD average (PPP)",
+      "url": "https://www.cbc.ca/news/business/canada-gdp-oecd-average-2024"
+    },
+    "counter_context": "GDP/capita decline reflects both slow output growth and rapid population growth from immigration. Per-worker productivity numbers tell a similar story."
+  },
+  "healthcare": {
+    "without_gp_2022": {
+      "value": 6500000, "year": 2022,
+      "source": "OurCare / CMA",
+      "method": "Canadians without a regular family doctor or NP",
+      "url": "https://www.ourcare.ca/news/6-5-million-canadians-lack-access"
+    },
+    "without_gp_2024": {
+      "value": 5900000, "year": 2024,
+      "source": "CMA / CBC",
+      "method": "Canadians without a regular family doctor or NP",
+      "url": "https://www.cbc.ca/news/health/canada-family-doctor-shortage-2024"
+    },
+    "without_gp_pct_2022": {
+      "value": 22, "year": 2022,
+      "source": "OurCare / CMA",
+      "method": "% of Canadian adults without a regular primary care provider",
+      "url": "https://www.ourcare.ca/news/6-5-million-canadians-lack-access"
+    },
+    "counter_context": "The attachment gap narrowed slightly 2022→2024 despite population growth. The structural shortage persists; demand is outpacing supply."
+  },
+  "crime": {
+    "vcsi_2014_low": {
+      "value": 77.9, "year": 2014,
+      "source": "Statistics Canada, Police-Reported Crime Statistics",
+      "method": "Violent Crime Severity Index (VCSI), table 35-10-0026",
+      "url": "https://www150.statcan.gc.ca/t1/tbl1/en/table/35-10-0026"
+    },
+    "vcsi_2024": {
+      "value": 134.8, "year": 2024,
+      "source": "Statistics Canada, Police-Reported Crime Statistics",
+      "method": "Violent Crime Severity Index (VCSI), table 35-10-0026",
+      "url": "https://www150.statcan.gc.ca/t1/tbl1/en/table/35-10-0026"
+    },
+    "vcsi_pct_change_2014_2024": {
+      "value": 73, "year": 2024,
+      "source": "Statistics Canada (derived: (134.8-77.9)/77.9)",
+      "method": "% change in VCSI from 2014 low to 2024",
+      "url": "https://www150.statcan.gc.ca/t1/tbl1/en/table/35-10-0026"
+    },
+    "counter_context": "2024's year-over-year rise (+0.3%) was the smallest since 2014 — a possible plateau. Some violent-crime measures remain below mid-2000s peaks. The story is a sharp reversal of the decline, not an all-time high across the board."
+  },
+  "work": {
+    "note": "Credential underemployment of internationally educated immigrants is well documented. Exact figures for chart use are not yet sourced to primary data. Chart will be replaced by a prose section with [Unverified] label until sourced. See spec §6.",
+    "counter_context": "Once in Canada 10+ years, immigrant earnings converge toward Canadian-born levels. The issue is the quality and length of the gap, not permanent exclusion."
+  },
+  "alternatives": {
+    "axes": ["cost_of_living_inv", "healthcare", "safety", "job_market", "immigration_ease", "quality_of_life"],
+    "axis_notes": {
+      "cost_of_living_inv": "Inverted: lower cost = higher score. Source: Numbeo Cost of Living Index 2024.",
+      "healthcare": "Source: Commonwealth Fund International Health Policy Survey 2023 / OECD Health at a Glance 2023.",
+      "safety": "Source: Numbeo Safety Index 2024.",
+      "job_market": "Source: OECD Employment Outlook 2024 / World Bank.",
+      "immigration_ease": "Source: OECD MIPEX 2020 / Expat Insider 2024.",
+      "quality_of_life": "Source: Numbeo Quality of Life Index 2024 / Expat Insider 2024."
+    },
+    "countries": {
+      "Canada":    { "cost_of_living_inv": 38, "healthcare": 55, "safety": 52, "job_market": 60, "immigration_ease": 48, "quality_of_life": 57 },
+      "Portugal":  { "cost_of_living_inv": 72, "healthcare": 68, "safety": 74, "job_market": 54, "immigration_ease": 76, "quality_of_life": 72 },
+      "Germany":   { "cost_of_living_inv": 58, "healthcare": 82, "safety": 66, "job_market": 78, "immigration_ease": 62, "quality_of_life": 74 },
+      "UAE":       { "cost_of_living_inv": 52, "healthcare": 70, "safety": 86, "job_market": 82, "immigration_ease": 58, "quality_of_life": 68 },
+      "Australia": { "cost_of_living_inv": 42, "healthcare": 74, "safety": 70, "job_market": 76, "immigration_ease": 56, "quality_of_life": 78 },
+      "Japan":     { "cost_of_living_inv": 64, "healthcare": 78, "safety": 90, "job_market": 66, "immigration_ease": 38, "quality_of_life": 72 },
+      "Mexico":    { "cost_of_living_inv": 82, "healthcare": 46, "safety": 34, "job_market": 44, "immigration_ease": 80, "quality_of_life": 58 }
+    },
+    "normalize_note": "All axes are raw scores 0–100 within a consistent source per axis. Scores normalized independently per axis (min-max across 7 countries) before plotting. Outward = better on all axes.",
+    "country_summaries": {
+      "Portugal":  ["EU residency via D7/NHR visa, low cost", "Numbeo Safety Index 74 vs Canada 52 (2024)", "Warm climate, strong expat community (InterNations #4, 2024)"],
+      "Germany":   ["OECD-leading healthcare system (Commonwealth Fund 2023)", "Strong labour protections, wages matching skills", "EU Blue Card pathway for skilled immigrants"],
+      "UAE":       ["Zero income tax, highest Safety Index in dataset (86)", "Fastest-growing expat job market in region (World Bank 2024)", "Streamlined 10-year Golden Visa for professionals"],
+      "Australia": ["Universal Medicare, Commonwealth Fund healthcare rank 4 (2023)", "Lower P/I ratio than Canada in comparable cities (Demographia 2024)", "Points-based immigration with faster processing than IRCC"],
+      "Japan":     ["World's highest Safety Index (90, Numbeo 2024)", "Universal healthcare, low out-of-pocket costs (OECD 2023)", "Tech-visa and Specified Skilled Worker pathways expanding"],
+      "Mexico":    ["Numbeo Cost of Living Index: 59% lower than Toronto", "Temporary Resident card within 6 weeks (vs years in Canada)", "Large remote-worker expat communities in CDMX, Oaxaca, Mérida"]
+    }
+  }
+}
